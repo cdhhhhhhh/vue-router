@@ -38,6 +38,7 @@ export default {
   },
   render (h: Function) {
     const router = this.$router
+
     const current = this.$route
     const { location, route, href } = router.resolve(
       this.to,

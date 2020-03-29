@@ -55,7 +55,9 @@ export function createRouteMap (
 
 function addRouteRecord (
   pathList: Array<string>,
+  // path->RouteRecord
   pathMap: Dictionary<RouteRecord>,
+  // name->RouteRecord
   nameMap: Dictionary<RouteRecord>,
   route: RouteConfig,
   parent?: RouteRecord,
@@ -71,11 +73,11 @@ function addRouteRecord (
       )} cannot be a ` + `string id. Use an actual component instead.`
     )
   }
-
+  // 编写正则规则
   const pathToRegexpOptions: PathToRegexpOptions =
     route.pathToRegexpOptions || {}
   const normalizedPath = normalizePath(path, parent, pathToRegexpOptions.strict)
-
+  // 判断是否大小写
   if (typeof route.caseSensitive === 'boolean') {
     pathToRegexpOptions.sensitive = route.caseSensitive
   }
@@ -128,12 +130,12 @@ function addRouteRecord (
       addRouteRecord(pathList, pathMap, nameMap, child, record, childMatchAs)
     })
   }
-
+  // 判断以前是否加入
   if (!pathMap[record.path]) {
     pathList.push(record.path)
     pathMap[record.path] = record
   }
-
+  // 判断是否别名
   if (route.alias !== undefined) {
     const aliases = Array.isArray(route.alias) ? route.alias : [route.alias]
     for (let i = 0; i < aliases.length; ++i) {
@@ -161,7 +163,7 @@ function addRouteRecord (
       )
     }
   }
-
+  // 判断是否取name
   if (name) {
     if (!nameMap[name]) {
       nameMap[name] = record
@@ -192,7 +194,7 @@ function compileRouteRegex (
   }
   return regex
 }
-
+// 格式化path
 function normalizePath (
   path: string,
   parent?: RouteRecord,

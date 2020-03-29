@@ -23,7 +23,23 @@ export default class VueRouter {
   apps: Array<any>;
   ready: boolean;
   readyCbs: Array<Function>;
+
   options: RouterOptions;
+  // declare type RouterOptions = {
+  //   routes?: Array<RouteConfig>;
+  //   mode?: string;
+  //   fallback?: boolean;
+  //   base?: string;
+  //   linkActiveClass?: string;
+  //   linkExactActiveClass?: string;
+  //   parseQuery?: (query: string) => Object;
+  //   stringifyQuery?: (query: Object) => string;
+  //   scrollBehavior?: (
+  //     to: Route,
+  //     from: Route,
+  //     savedPosition: ?Position
+  //   ) => PositionResult | Promise<PositionResult>;
+  // }
   mode: string;
   history: HashHistory | HTML5History | AbstractHistory;
   matcher: Matcher;

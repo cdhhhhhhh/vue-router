@@ -7,7 +7,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global = global || self, global.VueRouter = factory());
-}(this, function () { 'use strict';
+}(this, (function () { 'use strict';
 
   /*  */
 
@@ -59,6 +59,7 @@
 
       // used by devtools to display a router-view badge
       data.routerView = true;
+      console.log({ props: props, children: children, parent: parent, data: data });
 
       // directly use parent context's createElement() function
       // so that components rendered by router-view can resolve named slots
@@ -610,7 +611,7 @@
    * @return {!function(Object=, Object=)}
    */
   function compile (str, options) {
-    return tokensToFunction(parse(str, options))
+    return tokensToFunction(parse(str, options), options)
   }
 
   /**
@@ -640,14 +641,14 @@
   /**
    * Expose a method for transforming tokens into the path function.
    */
-  function tokensToFunction (tokens) {
+  function tokensToFunction (tokens, options) {
     // Compile all the tokens into regexps.
     var matches = new Array(tokens.length);
 
     // Compile all the patterns before compilation.
     for (var i = 0; i < tokens.length; i++) {
       if (typeof tokens[i] === 'object') {
-        matches[i] = new RegExp('^(?:' + tokens[i].pattern + ')$');
+        matches[i] = new RegExp('^(?:' + tokens[i].pattern + ')$', flags(options));
       }
     }
 
@@ -760,7 +761,7 @@
    * @return {string}
    */
   function flags (options) {
-    return options.sensitive ? '' : 'i'
+    return options && options.sensitive ? '' : 'i'
   }
 
   /**
@@ -1051,6 +1052,10 @@
       replace: Boolean,
       activeClass: String,
       exactActiveClass: String,
+      ariaCurrentValue: {
+        type: String,
+        default: 'page'
+      },
       event: {
         type: eventTypes,
         default: 'click'
@@ -1060,6 +1065,7 @@
       var this$1 = this;
 
       var router = this.$router;
+
       var current = this.$route;
       var ref = router.resolve(
         this.to,
@@ -1095,6 +1101,8 @@
       classes[activeClass] = this.exact
         ? classes[exactActiveClass]
         : isIncludedRoute(current, compareTarget);
+
+      var ariaCurrentValue = classes[exactActiveClass] ? this.ariaCurrentValue : null;
 
       var handler = function (e) {
         if (guardEvent(e)) {
@@ -1144,7 +1152,7 @@
 
       if (this.tag === 'a') {
         data.on = on;
-        data.attrs = { href: href };
+        data.attrs = { href: href, 'aria-current': ariaCurrentValue };
       } else {
         // find the first <a> child and apply listener and href
         var a = findAnchor(this.$slots.default);
@@ -1172,6 +1180,7 @@
 
           var aAttrs = (a.data.attrs = extend({}, a.data.attrs));
           aAttrs.href = href;
+          aAttrs['aria-current'] = ariaCurrentValue;
         } else {
           // doesn't have <a> child, apply listener to self
           data.on = on;
@@ -1219,12 +1228,19 @@
   var _Vue;
 
   function install (Vue) {
+    /**
+     * 1.判断安装
+     * 2.混入_routerRoot _router _route
+     * 3._route设置为响应式属性
+     * 4._router.init()方法
+     */
     if (install.installed && _Vue === Vue) { return }
     install.installed = true;
 
     _Vue = Vue;
 
     var isDef = function (v) { return v !== undefined; };
+    console.log();
 
     var registerInstance = function (vm, callVal) {
       var i = vm.$options._parentVnode;
@@ -1263,6 +1279,7 @@
 
     var strats = Vue.config.optionMergeStrategies;
     // use the same hook merging strategy for route hooks
+    // ?
     strats.beforeRouteEnter = strats.beforeRouteLeave = strats.beforeRouteUpdate = strats.created;
   }
 
@@ -1319,7 +1336,9 @@
 
   function addRouteRecord (
     pathList,
+    // path->RouteRecord
     pathMap,
+    // name->RouteRecord
     nameMap,
     route,
     parent,
@@ -1336,11 +1355,11 @@
         )) + " cannot be a " + "string id. Use an actual component instead."
       );
     }
-
+    // 编写正则规则
     var pathToRegexpOptions =
       route.pathToRegexpOptions || {};
     var normalizedPath = normalizePath(path, parent, pathToRegexpOptions.strict);
-
+    // 判断是否大小写
     if (typeof route.caseSensitive === 'boolean') {
       pathToRegexpOptions.sensitive = route.caseSensitive;
     }
@@ -1391,12 +1410,12 @@
         addRouteRecord(pathList, pathMap, nameMap, child, record, childMatchAs);
       });
     }
-
+    // 判断以前是否加入
     if (!pathMap[record.path]) {
       pathList.push(record.path);
       pathMap[record.path] = record;
     }
-
+    // 判断是否别名
     if (route.alias !== undefined) {
       var aliases = Array.isArray(route.alias) ? route.alias : [route.alias];
       for (var i = 0; i < aliases.length; ++i) {
@@ -1424,7 +1443,7 @@
         );
       }
     }
-
+    // 判断是否取name
     if (name) {
       if (!nameMap[name]) {
         nameMap[name] = record;
@@ -1455,7 +1474,7 @@
     }
     return regex
   }
-
+  // 格式化path
   function normalizePath (
     path,
     parent,
@@ -1853,7 +1872,7 @@
         return false
       }
 
-      return window.history && 'pushState' in window.history
+      return window.history && typeof window.history.pushState === 'function'
     })();
 
   function pushState (url, replace) {
@@ -2923,4 +2942,5 @@
 
   return VueRouter;
 
-}));
+})));
+//# sourceMappingURL=vue-router.js.map

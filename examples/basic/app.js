@@ -5,7 +5,7 @@ import VueRouter from 'vue-router'
 // This installs <router-view> and <router-link>,
 // and injects $router and $route to all router-enabled child components
 Vue.use(VueRouter)
-
+debugger
 // 2. Define route components
 const Home = { template: '<div>home</div>' }
 const Foo = { template: '<div>foo</div>' }

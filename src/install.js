@@ -4,12 +4,19 @@ import Link from './components/link'
 export let _Vue
 
 export function install (Vue) {
+  /**
+   * 1.判断安装
+   * 2.混入_routerRoot _router _route
+   * 3._route设置为响应式属性
+   * 4._router.init()方法
+   */
   if (install.installed && _Vue === Vue) return
   install.installed = true
 
   _Vue = Vue
 
   const isDef = v => v !== undefined
+  console.log()
 
   const registerInstance = (vm, callVal) => {
     let i = vm.$options._parentVnode
@@ -48,5 +55,6 @@ export function install (Vue) {
 
   const strats = Vue.config.optionMergeStrategies
   // use the same hook merging strategy for route hooks
+  // ?
   strats.beforeRouteEnter = strats.beforeRouteLeave = strats.beforeRouteUpdate = strats.created
 }
